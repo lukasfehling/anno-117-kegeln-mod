@@ -1,5 +1,7 @@
 # Kegeln – ein Mod für Anno 117: Pax Romana
 
+<p align="center"><img src="assets/icons/trichter.png" alt="Trichter-Icon: Messingtrichter mit Bierschaum und Lederschlauch" width="220"></p>
+
 Bringt das Kegeln ins Römische Reich: Trichter als neue Ware mit eigenen Produktionsketten in allen drei Welten,
 ein passendes Bedürfnis für die Bevölkerung, Lieferaufträge an den Leuchttürmen und einen Kaiser, der ab und an
 zu einer Runde einlädt.
@@ -26,10 +28,10 @@ für diesen Spielstand aktiv bleiben.
 
 ### Neue Waren
 
-| Ware | Verwendung |
-|---|---|
-| Trichter | Bedürfnis der Bevölkerung, Lieferaufträge |
-| Schläuche | Zwischenprodukt für Trichter |
+| | Ware | Verwendung |
+|---|---|---|
+| <img src="assets/icons/trichter.png" alt="Trichter" width="72"> | Trichter | Bedürfnis der Bevölkerung, Lieferaufträge |
+| <img src="assets/icons/schlauch.png" alt="Schläuche" width="72"> | Schläuche | Zwischenprodukt für Trichter |
 
 Malz und Bier lassen sich zusätzlich in Latium herstellen.
 
