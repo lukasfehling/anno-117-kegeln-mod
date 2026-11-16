@@ -9,7 +9,7 @@ import xml.dom.minidom
 
 OUT = sys.argv[1]
 DEV = '--dev' in sys.argv[2:]
-VERSION = os.environ.get('KEGELN_VERSION', '0.1.0')
+VERSION = os.environ.get('KEGELN_VERSION', '0.1.1')
 for d in ('data/base/config/export', 'data/base/config/gui', 'lukas') + (('data/script/content/kaiserkegeln',) if DEV else ()):
     os.makedirs(os.path.join(OUT, d), exist_ok=True)
 
@@ -55,6 +55,12 @@ T = {  # id: (de, en)
     2001000207: ("Gut gekegelt.", "Well bowled."),
     2001000208: ("Ein Statthalter hat sich durch Kegeln Respekt beim Kaiser verschafft! (+1 Ansehen)",
                  "A governor has earned the emperor's respect through bowling! (+1 reputation)"),
+    2001000209: ("Ich kegle alleine.", "I bowl alone."),
+    2001000210: ("Du kegelst ohne den Kaiser. Die Kugeln rollen trotzdem, nur der Kaiser steht allein an der Bahn und ist beleidigt.",
+                 "You bowl without the emperor. The balls roll all the same, but the emperor stands alone at the lane and takes offence."),
+    2001000211: ("Selbst schuld.", "His loss."),
+    2001000212: ("Ein Statthalter kegelt lieber alleine und brüskiert damit den Kaiser! (−1 Ansehen)",
+                 "A governor prefers to bowl alone and snubs the emperor! (−1 reputation)"),
 }
 for lang, idx in (('german', 0), ('english', 1)):
     s = '<ModOps>\n  <ModOp Add="/TextExport/Texts[1]">\n'
@@ -132,11 +138,166 @@ NOTRIG = '''<IsBaseAutoCreateAsset>1</IsBaseAutoCreateAsset>
                 </CharacterNotificationTrigger>
               </Values>'''
 
+OPTION = '''<ChallengeData>
+              <CheckValue>
+                <Template>FloatVariableOrValue</Template>
+                <Values>
+                  <FloatVariableOrValue />
+                </Values>
+              </CheckValue>
+            </ChallengeData>
+            <UnlockRequirement>
+              <Conditions>
+                <Template>PreConditionList</Template>
+                <Values>
+                  <PreConditionList />
+                </Values>
+              </Conditions>
+            </UnlockRequirement>
+            <CharacterNotificationOnDecisionTaken>
+              <Template>CharacterNotificationTrigger</Template>
+              <Values>
+                <CharacterNotificationTrigger>
+                  <Type>None</Type>
+                </CharacterNotificationTrigger>
+              </Values>
+            </CharacterNotificationOnDecisionTaken>'''
+
 SCREEN = '''<BackgroundImage>data/ui/fhd/base/features/images_fullscreen/img_villa_interior_evening.png</BackgroundImage>
           <LeftParticipant>
             <Value>ActiveEmperor</Value>
             <IsVariable>1</IsVariable>
           </LeftParticipant>'''
+
+def outcome(guid, name, text, button, reputation, notification):
+    # Outcome screen with rewards: 5000 denarii (good 1010017) and an emperor reputation change, as in vanilla
+    # outcome 88515; plus a side notification.
+    return f'''  <Asset>
+    <Template>Decision</Template>
+    <Values>
+      <Standard>
+        <GUID>{guid}</GUID>
+        <Name>{name}</Name>
+      </Standard>
+      <Decision>
+        <DecisionScreenConfig>
+          <Headline>2001000201</Headline>
+          <Text>
+            <Value>{text}</Value>
+          </Text>
+          {SCREEN}
+        </DecisionScreenConfig>
+        <DecisionOptions>
+          <Item>
+            <VectorElement>
+              <InheritedIndex>0</InheritedIndex>
+            </VectorElement>
+            <OptionText>{button}</OptionText>
+            <CharacterNotificationOnDecisionTaken>
+              {NOTRIG}
+            </CharacterNotificationOnDecisionTaken>
+          </Item>
+        </DecisionOptions>
+      </Decision>
+      <QuestComponent />
+      <DecisionComponent>
+        <DecisionActions>
+          <Item>
+            <Action>
+              <Template>ActionAddGoodsToItemContainer</Template>
+              <Values>
+                <Action />
+                <ActionAddGoodsToItemContainer>
+                  <Goods>
+                    <Item>
+                      <Good>
+                        <Value>1010017</Value>
+                      </Good>
+                      <Amount>
+                        <Value>5000</Value>
+                      </Amount>
+                    </Item>
+                  </Goods>
+                  <ItemContainerObjects>
+                    <Template>ObjectFilter</Template>
+                    <Values>
+                      <ObjectFilter />
+                    </Values>
+                  </ItemContainerObjects>
+                </ActionAddGoodsToItemContainer>
+                <LocationFilter>
+                  <AllowAllLocations>1</AllowAllLocations>
+                  <AllowProcessingParticipantControlledAreas>1</AllowProcessingParticipantControlledAreas>
+                  <ComponentLocation>
+                    <Template>ComponentLocation</Template>
+                    <Values>
+                      <ComponentLocation />
+                    </Values>
+                  </ComponentLocation>
+                  <ObjectLocations>
+                    <ObjectFilter>
+                      <Template>EmptyAutoCreateValue</Template>
+                      <Values>
+                        <EmptyAutoCreateValue />
+                      </Values>
+                    </ObjectFilter>
+                  </ObjectLocations>
+                  <AdditionalLocationFilter>
+                    <Template>EmptyAutoCreateValue</Template>
+                    <Values>
+                      <EmptyAutoCreateValue />
+                    </Values>
+                  </AdditionalLocationFilter>
+                </LocationFilter>
+              </Values>
+            </Action>
+          </Item>
+          <Item>
+            <Action>
+              <Template>ActionChangeReputation</Template>
+              <Values>
+                <Action />
+                <ActionChangeReputation>
+                  <UseProcessingParticipant>1</UseProcessingParticipant>
+                  <Amount>
+                    <Value>{reputation}</Value>
+                  </Amount>
+                </ActionChangeReputation>
+              </Values>
+            </Action>
+          </Item>
+          <Item>
+            <Action>
+              <Template>ActionNotification</Template>
+              <Values>
+                <Action />
+                <ActionNotification>
+                  <Notification>
+                    <Template>SideNotification</Template>
+                    <Values>
+                      <SideNotification>
+                        <IconAsset>68769</IconAsset>
+                        <NotificationSideTitle>2001000201</NotificationSideTitle>
+                        <HasJumpLocation>0</HasJumpLocation>
+                      </SideNotification>
+                      <BaseNotification>
+                        <NotificationText>{notification}</NotificationText>
+                        <NotificationTopic>Quests</NotificationTopic>
+                      </BaseNotification>
+                      <NotificationSubtitle />
+                    </Values>
+                  </Notification>
+                </ActionNotification>
+              </Values>
+            </Action>
+          </Item>
+        </DecisionActions>
+      </DecisionComponent>
+    </Values>
+  </Asset>
+
+'''
+
 
 x = f'''<ModOps>
   <!-- Kegeln: the emperor's bowling invitation. GUIDs 2001000100-2001000199, texts 2001000201-2001000299 (personal-use range). -->
@@ -150,7 +311,7 @@ x = f'''<ModOps>
   <!-- Trichter delivery contracts at NPC lighthouses; generated by build_contracts.py -->
   <Include File="contracts.include.xml" />
 
-  <!-- Storyline: governor request -> decision (yes / no) -> outcome with rewards. Modelled on vanilla decision quest 81384. -->
+  <!-- Storyline: governor request -> decision (yes / bowl alone / no) -> outcome with rewards. Modelled on vanilla decision quest 81384. -->
   <Asset>
     <Template>StoryLine</Template>
     <Values>
@@ -241,31 +402,12 @@ x = f'''<ModOps>
             </CharacterNotificationOnDecisionTaken>
           </Item>
           <Item>
+            <OptionText>2001000209</OptionText>
+            {OPTION}
+          </Item>
+          <Item>
             <OptionText>2001000205</OptionText>
-            <ChallengeData>
-              <CheckValue>
-                <Template>FloatVariableOrValue</Template>
-                <Values>
-                  <FloatVariableOrValue />
-                </Values>
-              </CheckValue>
-            </ChallengeData>
-            <UnlockRequirement>
-              <Conditions>
-                <Template>PreConditionList</Template>
-                <Values>
-                  <PreConditionList />
-                </Values>
-              </Conditions>
-            </UnlockRequirement>
-            <CharacterNotificationOnDecisionTaken>
-              <Template>CharacterNotificationTrigger</Template>
-              <Values>
-                <CharacterNotificationTrigger>
-                  <Type>None</Type>
-                </CharacterNotificationTrigger>
-              </Values>
-            </CharacterNotificationOnDecisionTaken>
+            {OPTION}
           </Item>
         </DecisionOptions>
       </Decision>
@@ -282,136 +424,21 @@ x = f'''<ModOps>
               </Item>
             </SuccessOutput>
           </Item>
+          <Item>
+            <SuccessOutput>
+              <Item>
+                <Component>2001000104</Component>
+              </Item>
+            </SuccessOutput>
+          </Item>
           <Item />
         </DecisionOutputs>
       </DecisionComponent>
     </Values>
   </Asset>
-  <!-- Outcome of "yes": 5000 denarii (good 1010017) and +1 emperor reputation, as in vanilla outcome 88515; plus a side notification. -->
-  <Asset>
-    <Template>Decision</Template>
-    <Values>
-      <Standard>
-        <GUID>2001000103</GUID>
-        <Name>Kegeln Outcome Yes</Name>
-      </Standard>
-      <Decision>
-        <DecisionScreenConfig>
-          <Headline>2001000201</Headline>
-          <Text>
-            <Value>2001000206</Value>
-          </Text>
-          {SCREEN}
-        </DecisionScreenConfig>
-        <DecisionOptions>
-          <Item>
-            <VectorElement>
-              <InheritedIndex>0</InheritedIndex>
-            </VectorElement>
-            <OptionText>2001000207</OptionText>
-            <CharacterNotificationOnDecisionTaken>
-              {NOTRIG}
-            </CharacterNotificationOnDecisionTaken>
-          </Item>
-        </DecisionOptions>
-      </Decision>
-      <QuestComponent />
-      <DecisionComponent>
-        <DecisionActions>
-          <Item>
-            <Action>
-              <Template>ActionAddGoodsToItemContainer</Template>
-              <Values>
-                <Action />
-                <ActionAddGoodsToItemContainer>
-                  <Goods>
-                    <Item>
-                      <Good>
-                        <Value>1010017</Value>
-                      </Good>
-                      <Amount>
-                        <Value>5000</Value>
-                      </Amount>
-                    </Item>
-                  </Goods>
-                  <ItemContainerObjects>
-                    <Template>ObjectFilter</Template>
-                    <Values>
-                      <ObjectFilter />
-                    </Values>
-                  </ItemContainerObjects>
-                </ActionAddGoodsToItemContainer>
-                <LocationFilter>
-                  <AllowAllLocations>1</AllowAllLocations>
-                  <AllowProcessingParticipantControlledAreas>1</AllowProcessingParticipantControlledAreas>
-                  <ComponentLocation>
-                    <Template>ComponentLocation</Template>
-                    <Values>
-                      <ComponentLocation />
-                    </Values>
-                  </ComponentLocation>
-                  <ObjectLocations>
-                    <ObjectFilter>
-                      <Template>EmptyAutoCreateValue</Template>
-                      <Values>
-                        <EmptyAutoCreateValue />
-                      </Values>
-                    </ObjectFilter>
-                  </ObjectLocations>
-                  <AdditionalLocationFilter>
-                    <Template>EmptyAutoCreateValue</Template>
-                    <Values>
-                      <EmptyAutoCreateValue />
-                    </Values>
-                  </AdditionalLocationFilter>
-                </LocationFilter>
-              </Values>
-            </Action>
-          </Item>
-          <Item>
-            <Action>
-              <Template>ActionChangeReputation</Template>
-              <Values>
-                <Action />
-                <ActionChangeReputation>
-                  <UseProcessingParticipant>1</UseProcessingParticipant>
-                  <Amount>
-                    <Value>1</Value>
-                  </Amount>
-                </ActionChangeReputation>
-              </Values>
-            </Action>
-          </Item>
-          <Item>
-            <Action>
-              <Template>ActionNotification</Template>
-              <Values>
-                <Action />
-                <ActionNotification>
-                  <Notification>
-                    <Template>SideNotification</Template>
-                    <Values>
-                      <SideNotification>
-                        <IconAsset>68769</IconAsset>
-                        <NotificationSideTitle>2001000201</NotificationSideTitle>
-                        <HasJumpLocation>0</HasJumpLocation>
-                      </SideNotification>
-                      <BaseNotification>
-                        <NotificationText>2001000208</NotificationText>
-                        <NotificationTopic>Quests</NotificationTopic>
-                      </BaseNotification>
-                      <NotificationSubtitle />
-                    </Values>
-                  </Notification>
-                </ActionNotification>
-              </Values>
-            </Action>
-          </Item>
-        </DecisionActions>
-      </DecisionComponent>
-    </Values>
-  </Asset>
-
+  <!-- Outcomes: "yes" gives +1 emperor reputation, "bowl alone" gives -1; both pay 5000 denarii. -->
+''' + outcome(2001000103, 'Kegeln Outcome Yes', 2001000206, 2001000207, 1, 2001000208) \
+    + outcome(2001000104, 'Kegeln Outcome Alone', 2001000210, 2001000211, -1, 2001000212) + '''
   <!-- Start trigger: registered by the Lua timer (lukas/kaiserkegeln.lua) when an invitation is due. -->
 ''' + trig(2001000110, 'Kegeln StartStoryline', start_story(2001000100))
 if DEV:

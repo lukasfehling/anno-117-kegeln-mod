@@ -22,7 +22,7 @@ def main():
     ap.add_argument('--dev', action='store_true', help='include test hotkeys')
     ap.add_argument('--zip', action='store_true', help='write a release zip with checksum')
     ap.add_argument('--install', metavar='DIR', help='copy the built mod into this mods folder')
-    ap.add_argument('--version', default='0.1.0')
+    ap.add_argument('--version', default='0.1.1')
     ap.add_argument('--vanilla-assets', metavar='FILE', help="the game's assets.xml, only needed to refresh vanilla_templates.json")
     args = ap.parse_args()
 

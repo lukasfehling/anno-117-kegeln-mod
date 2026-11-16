@@ -6,12 +6,12 @@ Bringt das Kegeln ins Römische Reich: Trichter als neue Ware mit eigenen Produk
 ein passendes Bedürfnis für die Bevölkerung, Lieferaufträge an den Leuchttürmen und einen Kaiser, der ab und an
 zu einer Runde einlädt.
 
-Stand: Version 0.1.0, erste Testversion für Spielversion 3.0.x. Was im Spiel schon geprüft ist und was nicht,
+Stand: Version 0.1.1, Testversion für Spielversion 3.0.x. Was im Spiel schon geprüft ist und was nicht,
 steht unter [Teststand](#teststand).
 
 ## Download und Installation
 
-1. Die Datei `kegeln-v0.1.0.zip` von der [Release-Seite](../../releases/latest) herunterladen.
+1. Die Datei `kegeln-v0.1.1.zip` von der [Release-Seite](../../releases/latest) herunterladen.
 2. Entpacken. Im Archiv liegt ein Ordner `kegeln`.
 3. Diesen Ordner nach `Dokumente\Anno 117 - Pax Romana\mods\` kopieren, sodass
    `Dokumente\Anno 117 - Pax Romana\mods\kegeln\modinfo.json` existiert.
@@ -78,13 +78,14 @@ Lieferaufträge). Menge und Belohnung berechnet das Spiel wie bei allen anderen 
 ### Der Kaiser kegelt
 
 In zufälligen Abständen von 30 bis 90 Minuten lädt der Kaiser zum Kegeln ein. Wer zusagt, erhält +1 Ansehen
-beim Kaiser und 5.000 Denare.
+beim Kaiser und 5.000 Denare. Wer lieber alleine kegelt, erhält ebenfalls 5.000 Denare, verliert aber 1 Ansehen
+beim Kaiser. Wer keine Zeit hat, bekommt nichts.
 
 ## Teststand
 
 Im Spiel geprüft (Einzelspieler, bestehender Spielstand):
 
-- Die Kaiser-Einladung erscheint als Statthalter-Anfrage und lässt sich annehmen.
+- Die Kaiser-Einladung erscheint als Statthalter-Anfrage mit ihren drei Antworten.
 - Die Gebäude stehen im Baumenü und lassen sich platzieren, Rezepte und Taktzeiten stimmen.
 - Die Umfeld-Wirkung der Trichter-Werkstatt.
 
